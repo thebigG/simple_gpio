@@ -74,73 +74,75 @@ void process_program_options(const int argc, const char *const argv[])
 int main()
 {
     // Export the desired pin by writing to /sys/class/gpio/export
+    std::cout <<"c++ version:"<< __cplusplus << std::endl;
+    return 0;
+//    int fd = open("/sys/class/gpio/export", O_WRONLY);
 
-    int fd = open("/sys/class/gpio/export", O_WRONLY);
-    if (fd == -1) {
-        perror("Unable to open /sys/class/gpio/export");
-        exit(1);
-    }
+//    if (fd == -1) {
+//        perror("Unable to open /sys/class/gpio/export");
+//        exit(1);
+//    }
 
-    if (write(fd, "24", 2) != 2) {
-        perror("Error writing to /sys/class/gpio/export");
-        exit(1);
-    }
+//    if (write(fd, "24", 2) != 2) {
+//        perror("Error writing to /sys/class/gpio/export");
+//        exit(1);
+//    }
 
-    close(fd);
+//    close(fd);
 
-    // Set the pin to be an output by writing "out" to /sys/class/gpio/gpio24/direction
+//    // Set the pin to be an output by writing "out" to /sys/class/gpio/gpio24/direction
 
-    fd = open("/sys/class/gpio/gpio24/direction", O_WRONLY);
-    if (fd == -1) {
-        perror("Unable to open /sys/class/gpio/gpio24/direction");
-        exit(1);
-    }
+//    fd = open("/sys/class/gpio/gpio24/direction", O_WRONLY);
+//    if (fd == -1) {
+//        perror("Unable to open /sys/class/gpio/gpio24/direction");
+//        exit(1);
+//    }
 
-    if (write(fd, "out", 3) != 3) {
-        perror("Error writing to /sys/class/gpio/gpio24/direction");
-        exit(1);
-    }
+//    if (write(fd, "out", 3) != 3) {
+//        perror("Error writing to /sys/class/gpio/gpio24/direction");
+//        exit(1);
+//    }
 
-    close(fd);
+//    close(fd);
 
-    fd = open("/sys/class/gpio/gpio24/value", O_WRONLY);
-    if (fd == -1) {
-        perror("Unable to open /sys/class/gpio/gpio24/value");
-        exit(1);
-    }
+//    fd = open("/sys/class/gpio/gpio24/value", O_WRONLY);
+//    if (fd == -1) {
+//        perror("Unable to open /sys/class/gpio/gpio24/value");
+//        exit(1);
+//    }
 
-    // Toggle LED 50 ms on, 50ms off, 100 times (10 seconds)
+//    // Toggle LED 50 ms on, 50ms off, 100 times (10 seconds)
 
-    for (int i = 0; i < 100; i++) {
-        if (write(fd, "1", 1) != 1) {
-            perror("Error writing to /sys/class/gpio/gpio24/value");
-            exit(1);
-        }
-        usleep(50000);
+//    for (int i = 0; i < 100; i++) {
+//        if (write(fd, "1", 1) != 1) {
+//            perror("Error writing to /sys/class/gpio/gpio24/value");
+//            exit(1);
+//        }
+//        usleep(50000);
 
-        if (write(fd, "0", 1) != 1) {
-            perror("Error writing to /sys/class/gpio/gpio24/value");
-            exit(1);
-        }
-        usleep(50000);
-    }
+//        if (write(fd, "0", 1) != 1) {
+//            perror("Error writing to /sys/class/gpio/gpio24/value");
+//            exit(1);
+//        }
+//        usleep(50000);
+//    }
 
-    close(fd);
+//    close(fd);
 
-    // Unexport the pin by writing to /sys/class/gpio/unexport
+//    // Unexport the pin by writing to /sys/class/gpio/unexport
 
-    fd = open("/sys/class/gpio/unexport", O_WRONLY);
-    if (fd == -1) {
-        perror("Unable to open /sys/class/gpio/unexport");
-        exit(1);
-    }
+//    fd = open("/sys/class/gpio/unexport", O_WRONLY);
+//    if (fd == -1) {
+//        perror("Unable to open /sys/class/gpio/unexport");
+//        exit(1);
+//    }
 
-    if (write(fd, "24", 2) != 2) {
-        perror("Error writing to /sys/class/gpio/unexport");
-        exit(1);
-    }
+//    if (write(fd, "24", 2) != 2) {
+//        perror("Error writing to /sys/class/gpio/unexport");
+//        exit(1);
+//    }
 
-    close(fd);
+//    close(fd);
 
     // And exit
     return 0;
