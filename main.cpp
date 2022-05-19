@@ -75,6 +75,7 @@ int main()
 {
     // Export the desired pin by writing to /sys/class/gpio/export
     std::cout <<"c++ version:"<< __cplusplus << std::endl;
+	std::cout <<"Simple GPIO program."<< std::endl;
     return 0;
 //    int fd = open("/sys/class/gpio/export", O_WRONLY);
 
