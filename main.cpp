@@ -19,8 +19,27 @@ Jeff Tranter <jtranter@ics.com>
 #include <unistd.h>
 #include <string>
 #include <iostream>
+#include <fstream>
+#include <exception>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
+
+
+class GPIOException : public std::exception
+{
+public:
+	GPIOException(std::string msg)
+	{
+		newMsg = msg;
+	}
+private:
+	std::string newMsg;
+  virtual const char* what() const throw()
+  {
+	return newMsg.c_str();
+  }
+};
+
 
 namespace po = boost::program_options;
 
@@ -32,6 +51,16 @@ void show_help(const po::options_description& desc, const std::string& topic = "
 		std::cout << "You asked for help on: " << topic << '\n';
 	}
 	exit( EXIT_SUCCESS );
+}
+
+void show_test(const po::options_description& desc, const int& topic)
+{
+//	std::cout << desc << '\n';
+//	if (topic != "") {
+//		std::cout << "You asked for help on: " << topic << '\n';
+//	}
+
+	std::cout<<"passed arg:"<<topic<<std::endl;
 }
 
 void process_program_options(const int argc, const char *const argv[])
@@ -48,7 +77,17 @@ void process_program_options(const int argc, const char *const argv[])
 					}
 				),
 			"Show help. If given, show help on the specified topic."
-		)
+		)(
+				"Pin,p",
+				po::value< int >()
+					->implicit_value(1)
+					->notifier(
+						[&desc](const int& topic) {
+							show_test(desc, topic);
+						}
+					),
+				"GPIO PIN."
+			)
 	;
 
 	if (argc == 1) {
@@ -68,28 +107,35 @@ void process_program_options(const int argc, const char *const argv[])
 		exit( EXIT_FAILURE );
 	}
 	po::notify(args);
+	std::cout<< args.at("Pin").as<int>()<<std::endl;
 	return;
 }
 
-int main()
+int main(const int argc, const char *const argv[])
 {
-    // Export the desired pin by writing to /sys/class/gpio/export
-    std::cout <<"c++ version:"<< __cplusplus << std::endl;
-	std::cout <<"Simple GPIO program V2."<< std::endl;
-    return 0;
-//    int fd = open("/sys/class/gpio/export", O_WRONLY);
+	process_program_options(argc, argv);
+	// Export the desired pin by writing to /sys/class/gpio/export
 
-//    if (fd == -1) {
-//        perror("Unable to open /sys/class/gpio/export");
-//        exit(1);
-//    }
+	std::ofstream ofs{"/sys/class/gpio/export"};
 
-//    if (write(fd, "24", 2) != 2) {
-//        perror("Error writing to /sys/class/gpio/export");
-//        exit(1);
-//    }
+	if(!ofs.is_open())
+	{
+		throw GPIOException("Error opening file.");
+	}
 
-//    close(fd);
+//	int fd = open("/sys/class/gpio/export", O_WRONLY);
+
+//	if (fd == -1) {
+//		perror("Unable to open /sys/class/gpio/export");
+//		exit(1);
+//	}
+
+//	if (write(fd, "24", 2) != 2) {
+//		perror("Error writing to /sys/class/gpio/export");
+//		exit(1);
+//	}
+
+//	close(fd);
 
 //    // Set the pin to be an output by writing "out" to /sys/class/gpio/gpio24/direction
 
