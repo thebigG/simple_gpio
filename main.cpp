@@ -21,9 +21,11 @@ Jeff Tranter <jtranter@ics.com>
 #include <iostream>
 #include <fstream>
 #include <exception>
+#include <fmt/core.h>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
 
+#include "gpio.h"
 
 class GPIOException : public std::exception
 {
@@ -53,14 +55,13 @@ void show_help(const po::options_description& desc, const std::string& topic = "
 	exit( EXIT_SUCCESS );
 }
 
-void show_test(const po::options_description& desc, const int& topic)
+void validate_pin(const po::options_description& desc, const int& pin)
 {
-//	std::cout << desc << '\n';
-//	if (topic != "") {
-//		std::cout << "You asked for help on: " << topic << '\n';
-//	}
-
-	std::cout<<"passed arg:"<<topic<<std::endl;
+	if(pin < BASE_GPIO || BASE_GPIO + N_GPIO < pin)
+	{
+		throw GPIOException(fmt::format("Pin is out of range. Pin must be between {} and {}",
+										BASE_GPIO, BASE_GPIO + N_GPIO));
+	}
 }
 
 void process_program_options(const int argc, const char *const argv[])
@@ -82,8 +83,8 @@ void process_program_options(const int argc, const char *const argv[])
 				po::value< int >()
 					->implicit_value(1)
 					->notifier(
-						[&desc](const int& topic) {
-							show_test(desc, topic);
+						[&desc](const int& pin) {
+							validate_pin(desc, pin);
 						}
 					),
 				"GPIO PIN."
@@ -114,6 +115,7 @@ void process_program_options(const int argc, const char *const argv[])
 int main(const int argc, const char *const argv[])
 {
 	process_program_options(argc, argv);
+	int base_gpio = BASE_GPIO;
 	// Export the desired pin by writing to /sys/class/gpio/export
 
 	std::ofstream ofs{"/sys/class/gpio/export"};
@@ -123,12 +125,7 @@ int main(const int argc, const char *const argv[])
 		throw GPIOException("Error opening file.");
 	}
 
-//	int fd = open("/sys/class/gpio/export", O_WRONLY);
-
-//	if (fd == -1) {
-//		perror("Unable to open /sys/class/gpio/export");
-//		exit(1);
-//	}
+//	ofs
 
 //	if (write(fd, "24", 2) != 2) {
 //		perror("Error writing to /sys/class/gpio/export");
