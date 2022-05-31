@@ -1,7 +1,12 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10.2)
 project(simple_gpio LANGUAGES CXX)
 
-add_compile_definitions(ZEDBOARD)
+if (VERSION GREATER_EQUAL 3.12)
+    add_compile_definitions(ZEDBOARD)
+else ()
+    add_definitions(-DZEDBOARD)
+
+endif()
 
 set(HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/include/gpio.h)
