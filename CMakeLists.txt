@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.6.1)
 project(simple_gpio LANGUAGES CXX)
 
-#GREATER_EQUAL was introduced in cmake 3.7, but yocto 2.2 uses cmake 3.6.1
+#GREATER_EQUAL was introduced in cmake 3.7, but yocto 2.2.4 uses cmake 3.6.1
 if (VERSION GREATER 3.12 OR VERSION EQUAL 3.12)
     add_compile_definitions(ZEDBOARD)
 else ()

@@ -57,10 +57,11 @@ void show_help(const po::options_description& desc, const std::string& topic = "
 
 void validate_pin(const po::options_description& desc, const int& pin)
 {
-	if(pin < BASE_GPIO || BASE_GPIO + N_GPIO < pin)
+	std::cout<<"pin:"<<pin<<std::endl;
+	if(pin < BASE_GPIO || BASE_GPIO + N_GPIO -1 < pin)
 	{
-		throw GPIOException(fmt::format("Pin is out of range. Pin must be between {} and {}",
-										BASE_GPIO, BASE_GPIO + N_GPIO));
+		throw GPIOException(fmt::format("Pin {} is out of range. Pin must be between {} and {}",
+										pin, BASE_GPIO, BASE_GPIO + N_GPIO-1));
 	}
 }
 
@@ -81,7 +82,6 @@ void process_program_options(const int argc, const char *const argv[])
 		)(
 				"Pin,p",
 				po::value< int >()
-					->implicit_value(1)
 					->notifier(
 						[&desc](const int& pin) {
 							validate_pin(desc, pin);
