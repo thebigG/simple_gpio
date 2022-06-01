@@ -27,6 +27,11 @@ Jeff Tranter <jtranter@ics.com>
 
 #include "gpio.h"
 
+struct Args
+{
+	int pin;
+};
+
 class GPIOException : public std::exception
 {
 public:
@@ -65,7 +70,7 @@ void validate_pin(const po::options_description& desc, const int& pin)
 	}
 }
 
-void process_program_options(const int argc, const char *const argv[])
+void process_program_options(const int argc, const char *const argv[], Args& in_args)
 {
 	po::options_description desc("Usage");
 	desc.add_options()
@@ -108,13 +113,15 @@ void process_program_options(const int argc, const char *const argv[])
 		exit( EXIT_FAILURE );
 	}
 	po::notify(args);
-	std::cout<< args.at("Pin").as<int>()<<std::endl;
+	in_args.pin = args.at("Pin").as<int>();
+//	std::cout<< args.at("Pin").as<int>()<<std::endl;
 	return;
 }
 
 int main(const int argc, const char *const argv[])
 {
-	process_program_options(argc, argv);
+	Args args{};
+	process_program_options(argc, argv, args);
 	int base_gpio = BASE_GPIO;
 	// Export the desired pin by writing to /sys/class/gpio/export
 
@@ -124,8 +131,8 @@ int main(const int argc, const char *const argv[])
 	{
 		throw GPIOException("Error opening file.");
 	}
-
-//	ofs
+	std::cout<<fmt::format("Export Pin {}", args.pin)<<std::endl;
+	ofs<<std::to_string(args.pin);
 
 //	if (write(fd, "24", 2) != 2) {
 //		perror("Error writing to /sys/class/gpio/export");
