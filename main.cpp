@@ -125,41 +125,54 @@ int main(const int argc, const char *const argv[])
 	int base_gpio = BASE_GPIO;
 	// Export the desired pin by writing to /sys/class/gpio/export
 
-	std::ofstream export_ofs{"/sys/class/gpio/export"};
+	std::ofstream export_ofs{};
 
-	if(!export_ofs.is_open())
-	{
-		throw GPIOException("Error opening file.");
+	//prepare f to throw if failbit gets set
+	std::ios_base::iostate exceptionMask = export_ofs.exceptions() | std::ios::failbit;
+	export_ofs.exceptions(exceptionMask);
+
+	try {
+		export_ofs.open("/sys/class/gpio/export");
+	} catch (std::system_error& e) {
+		std::cerr << e.code().message() << std::endl;
 	}
+
 	std::cout<<fmt::format("Export Pin {}", args.pin)<<std::endl;
 	std::string gpio_pin{std::to_string(args.pin)};
 	export_ofs<<gpio_pin;
 
-	std::string pin_file{fmt::format("/sys/class/gpio/gpio{}/direction", gpio_pin)};
+	// Set the pin to be an output by writing "out" to /sys/class/gpio/gpio24/direction
 
-	std::ofstream gpio_direction_ofs{pin_file};
+	std::string pin_direction_file{fmt::format("/sys/class/gpio/gpio{}/direction", gpio_pin)};
 
-	if(!gpio_direction_ofs.is_open())
-	{
-		throw GPIOException(fmt::format("Error opening {}", pin_file));
+	std::ofstream gpio_direction_ofs{};
+
+	try {
+		gpio_direction_ofs.open(pin_direction_file);
+	} catch (std::system_error& e) {
+		std::cerr << e.code().message() << std::endl;
 	}
-	export_ofs<<"out";
+	gpio_direction_ofs<<"out";
 
 
-//    // Set the pin to be an output by writing "out" to /sys/class/gpio/gpio24/direction
+	//Write to pin
+	std::string pin_value_file{fmt::format("/sys/class/gpio/gpio{}/value", gpio_pin)};
 
-//    fd = open("/sys/class/gpio/gpio24/direction", O_WRONLY);
-//    if (fd == -1) {
-//        perror("Unable to open /sys/class/gpio/gpio24/direction");
-//        exit(1);
-//    }
+	std::ofstream gpio_pin_value_ofs{};
 
-//    if (write(fd, "out", 3) != 3) {
-//        perror("Error writing to /sys/class/gpio/gpio24/direction");
-//        exit(1);
-//    }
+	try {
+		gpio_pin_value_ofs.open(pin_value_file);
+	} catch (std::system_error& e) {
+		std::cerr << e.code().message() << std::endl;
+	}
 
-//    close(fd);
+	try {
+		gpio_pin_value_ofs<<"1";
+	} catch (std::system_error& e) {
+		std::cerr << e.code().message() << std::endl;
+	}
+//	gpio_pin_value_ofs<<"1";
+
 
 //    fd = open("/sys/class/gpio/gpio24/value", O_WRONLY);
 //    if (fd == -1) {
