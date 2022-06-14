@@ -125,21 +125,26 @@ int main(const int argc, const char *const argv[])
 	int base_gpio = BASE_GPIO;
 	// Export the desired pin by writing to /sys/class/gpio/export
 
-	std::ofstream ofs{"/sys/class/gpio/export"};
+	std::ofstream export_ofs{"/sys/class/gpio/export"};
 
-	if(!ofs.is_open())
+	if(!export_ofs.is_open())
 	{
 		throw GPIOException("Error opening file.");
 	}
 	std::cout<<fmt::format("Export Pin {}", args.pin)<<std::endl;
-	ofs<<std::to_string(args.pin);
+	std::string gpio_pin{std::to_string(args.pin)};
+	export_ofs<<gpio_pin;
 
-//	if (write(fd, "24", 2) != 2) {
-//		perror("Error writing to /sys/class/gpio/export");
-//		exit(1);
-//	}
+	std::string pin_file{fmt::format("/sys/class/gpio/gpio{}/direction", gpio_pin)};
 
-//	close(fd);
+	std::ofstream gpio_direction_ofs{pin_file};
+
+	if(!gpio_direction_ofs.is_open())
+	{
+		throw GPIOException(fmt::format("Error opening {}", pin_file));
+	}
+	export_ofs<<"out";
+
 
 //    // Set the pin to be an output by writing "out" to /sys/class/gpio/gpio24/direction
 
