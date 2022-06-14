@@ -125,52 +125,56 @@ int main(const int argc, const char *const argv[])
 	int base_gpio = BASE_GPIO;
 	// Export the desired pin by writing to /sys/class/gpio/export
 
-	std::ofstream export_ofs{};
+	for(int i = BASE_GPIO;i<=N_GPIO;i++)
+	{
+		std::ofstream export_ofs{};
 
-	//prepare f to throw if failbit gets set
-	std::ios_base::iostate exceptionMask = export_ofs.exceptions() | std::ios::failbit;
-	export_ofs.exceptions(exceptionMask);
+		//prepare f to throw if failbit gets set
+		std::ios_base::iostate exceptionMask = export_ofs.exceptions() | std::ios::failbit;
+		export_ofs.exceptions(exceptionMask);
 
-	try {
-		export_ofs.open("/sys/class/gpio/export");
-	} catch (std::system_error& e) {
-		std::cerr << e.code().message() << std::endl;
+		try {
+			export_ofs.open("/sys/class/gpio/export");
+		} catch (std::system_error& e) {
+			std::cerr << e.code().message() << std::endl;
+		}
+
+		std::cout<<fmt::format("Export Pin {}", i)<<std::endl;
+		std::string gpio_pin{std::to_string(i)};
+		export_ofs<<gpio_pin;
+
+		// Set the pin to be an output by writing "out" to /sys/class/gpio/gpio24/direction
+
+		std::string pin_direction_file{fmt::format("/sys/class/gpio/gpio{}/direction", gpio_pin)};
+
+		std::ofstream gpio_direction_ofs{};
+
+		try {
+			gpio_direction_ofs.open(pin_direction_file);
+		} catch (std::system_error& e) {
+			std::cerr << e.code().message() << std::endl;
+		}
+		gpio_direction_ofs<<"out";
+
+
+		//Write to pin
+		std::string pin_value_file{fmt::format("/sys/class/gpio/gpio{}/value", gpio_pin)};
+
+		std::ofstream gpio_pin_value_ofs{};
+
+		try {
+			gpio_pin_value_ofs.open(pin_value_file);
+		} catch (std::system_error& e) {
+			std::cerr << e.code().message() << std::endl;
+		}
+
+		try {
+			gpio_pin_value_ofs<<"1";
+		} catch (std::system_error& e) {
+			std::cerr << e.code().message() << std::endl;
+		}
 	}
 
-	std::cout<<fmt::format("Export Pin {}", args.pin)<<std::endl;
-	std::string gpio_pin{std::to_string(args.pin)};
-	export_ofs<<gpio_pin;
-
-	// Set the pin to be an output by writing "out" to /sys/class/gpio/gpio24/direction
-
-	std::string pin_direction_file{fmt::format("/sys/class/gpio/gpio{}/direction", gpio_pin)};
-
-	std::ofstream gpio_direction_ofs{};
-
-	try {
-		gpio_direction_ofs.open(pin_direction_file);
-	} catch (std::system_error& e) {
-		std::cerr << e.code().message() << std::endl;
-	}
-	gpio_direction_ofs<<"out";
-
-
-	//Write to pin
-	std::string pin_value_file{fmt::format("/sys/class/gpio/gpio{}/value", gpio_pin)};
-
-	std::ofstream gpio_pin_value_ofs{};
-
-	try {
-		gpio_pin_value_ofs.open(pin_value_file);
-	} catch (std::system_error& e) {
-		std::cerr << e.code().message() << std::endl;
-	}
-
-	try {
-		gpio_pin_value_ofs<<"1";
-	} catch (std::system_error& e) {
-		std::cerr << e.code().message() << std::endl;
-	}
 //	gpio_pin_value_ofs<<"1";
 
 
