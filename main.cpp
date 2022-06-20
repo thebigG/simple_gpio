@@ -124,7 +124,10 @@ int main(const int argc, const char *const argv[])
 	process_program_options(argc, argv, args);
 	int base_gpio = BASE_GPIO;
 	// Export the desired pin by writing to /sys/class/gpio/export
+	//
+	std::string gpio_pin{std::to_string(args.pin)};
 
+	{
 	std::ofstream export_ofs{};
 
 	//prepare f to throw if failbit gets set
@@ -140,9 +143,11 @@ int main(const int argc, const char *const argv[])
 	std::cout<<fmt::format("Export Pin {}", args.pin)<<std::endl;
 	std::string gpio_pin{std::to_string(args.pin)};
 	export_ofs<<gpio_pin;
+	}
 
 	// Set the pin to be an output by writing "out" to /sys/class/gpio/gpio24/direction
 
+	{
 	std::string pin_direction_file{fmt::format("/sys/class/gpio/gpio{}/direction", gpio_pin)};
 
 	std::ofstream gpio_direction_ofs{};
@@ -152,9 +157,11 @@ int main(const int argc, const char *const argv[])
 	} catch (std::system_error& e) {
 		std::cerr << e.code().message() << std::endl;
 	}
-	gpio_direction_ofs<<"out";
+	std::string direction{"out"};
+	gpio_direction_ofs<<direction;
+	}
 
-
+	{
 	//Write to pin
 	std::string pin_value_file{fmt::format("/sys/class/gpio/gpio{}/value", gpio_pin)};
 
@@ -167,9 +174,12 @@ int main(const int argc, const char *const argv[])
 	}
 
 	try {
-		gpio_pin_value_ofs<<"1";
+		std::string value{"1"};
+		gpio_pin_value_ofs<<value<<std::endl;
+		std::cout<<"write 1 to pin:"<<pin_value_file<<std::endl;
 	} catch (std::system_error& e) {
 		std::cerr << e.code().message() << std::endl;
+	}
 	}
 //	gpio_pin_value_ofs<<"1";
 
