@@ -72,151 +72,179 @@ void validate_pin(const po::options_description& desc, const int& pin)
 
 void process_program_options(const int argc, const char *const argv[], Args& in_args)
 {
-	po::options_description desc("Usage");
-	desc.add_options()
-		(
-			"help,h",
-			po::value< std::string >()
-				->implicit_value("")
-				->notifier(
-					[&desc](const std::string& topic) {
-						show_help(desc, topic);
-					}
-				),
-			"Show help. If given, show help on the specified topic."
-		)(
+	po::options_description desc1("Write to pin.");
+	desc1.add_options()(
 				"Pin,p",
 				po::value< int >()
 					->notifier(
-						[&desc](const int& pin) {
-							validate_pin(desc, pin);
+						[&desc1](const int& pin) {
+							validate_pin(desc1, pin);
 						}
-					),
+					)->composing(),
 				"GPIO PIN."
-			)
-	;
-
-	if (argc == 1) {
-		show_help(desc); // does not return
-	}
+			);
 
 	po::variables_map args;
 
+
+
+
+	po::options_description desc2("Write to all pins.");
+	desc2.add_options()
+			(
+				"all,a",
+				po::value< bool >()
+					->notifier(
+						[&desc2](const bool& all_pins) {
+							validate_pin(desc2, all_pins);
+						}
+					),
+				"Write to all pins."
+			)
+	;
+
+	po::options_description desc3("Usage");
+	desc3.add_options()
+			(
+						"help,h",
+						po::value< std::string >()
+							->implicit_value("")
+							->notifier(
+								[&desc3](const std::string& topic) {
+									show_help(desc3, topic);
+								}
+							),
+						"Show help. If given, show help on the specified topic."
+					)
+	;
+
+	desc3.add(desc1);
+	desc3.add(desc2);
+
+	if (argc == 1) {
+		show_help(desc3); // does not return
+	}
+
 	try {
 		po::store(
-			po::parse_command_line(argc, argv, desc),
+			po::parse_command_line(argc, argv, desc3),
 			args
 		);
 	}
+
 	catch (po::error const& e) {
 		std::cerr << e.what() << '\n';
 		exit( EXIT_FAILURE );
 	}
+
 	po::notify(args);
 	in_args.pin = args.at("Pin").as<int>();
-//	std::cout<< args.at("Pin").as<int>()<<std::endl;
 	return;
+}
+
+void write_to_pin(int i)
+{
+	// Export the desired pin by writing to /sys/class/gpio/export
+	//
+	std::string gpio_pin{std::to_string(i)};
+
+	{
+	std::ofstream export_ofs{};
+
+	//prepare f to throw if failbit gets set
+	std::ios_base::iostate exceptionMask = export_ofs.exceptions() | std::ios::failbit;
+	export_ofs.exceptions(exceptionMask);
+
+	try {
+		export_ofs.open("/sys/class/gpio/export");
+	} catch (std::system_error& e) {
+		std::cerr << e.code().message() << std::endl;
+	}
+
+	std::cout<<fmt::format("Export Pin {}", i)<<std::endl;
+	std::string gpio_pin{std::to_string(i)};
+	export_ofs<<gpio_pin;
+	}
+
+	// Set the pin to be an output by writing "out" to /sys/class/gpio/gpio24/direction
+
+	{
+	std::string pin_direction_file{fmt::format("/sys/class/gpio/gpio{}/direction", gpio_pin)};
+
+	std::ofstream gpio_direction_ofs{};
+
+	try {
+		gpio_direction_ofs.open(pin_direction_file);
+	} catch (std::system_error& e) {
+		std::cerr << e.code().message() << std::endl;
+	}
+	std::string direction{"out"};
+	gpio_direction_ofs<<direction;
+	}
+
+	{
+	//Write to pin
+	std::string pin_value_file{fmt::format("/sys/class/gpio/gpio{}/value", gpio_pin)};
+
+	std::ofstream gpio_pin_value_ofs{};
+
+	try {
+		gpio_pin_value_ofs.open(pin_value_file);
+	} catch (std::system_error& e) {
+		std::cerr << e.code().message() << std::endl;
+	}
+
+	try {
+		std::string value{"1"};
+		gpio_pin_value_ofs<<value<<std::endl;
+		std::cout<<"write 1 to pin:"<<pin_value_file<<std::endl;
+	} catch (std::system_error& e) {
+		std::cerr << e.code().message() << std::endl;
+	}
+	}
+}
+
+void write_to_all_pins()
+{
+	for(int i = BASE_GPIO;i<=N_GPIO;i++)
+	{
+		write_to_pin(i);
+	}
+}
+
+void validate_pin(int pin)
+{
+	for(auto i: GPIO)
+	{
+		if(i == pin)
+		{
+			return;
+		}
+	}
+
+	//TODO:Not sure if exceptions are the best fit here
+	throw GPIOException{fmt::format(
+									"Invalid PIN:{}"
+									"Board info(configured at build time):{}",
+									pin, BOARD)};
 }
 
 int main(const int argc, const char *const argv[])
 {
 	Args args{};
 	process_program_options(argc, argv, args);
-	int base_gpio = BASE_GPIO;
-	// Export the desired pin by writing to /sys/class/gpio/export
-
-	for(int i = BASE_GPIO;i<=N_GPIO;i++)
+	try
 	{
-		std::ofstream export_ofs{};
-
-		//prepare f to throw if failbit gets set
-		std::ios_base::iostate exceptionMask = export_ofs.exceptions() | std::ios::failbit;
-		export_ofs.exceptions(exceptionMask);
-
-		try {
-			export_ofs.open("/sys/class/gpio/export");
-		} catch (std::system_error& e) {
-			std::cerr << e.code().message() << std::endl;
-		}
-
-		std::cout<<fmt::format("Export Pin {}", i)<<std::endl;
-		std::string gpio_pin{std::to_string(i)};
-		export_ofs<<gpio_pin;
-
-		// Set the pin to be an output by writing "out" to /sys/class/gpio/gpio24/direction
-
-		std::string pin_direction_file{fmt::format("/sys/class/gpio/gpio{}/direction", gpio_pin)};
-
-		std::ofstream gpio_direction_ofs{};
-
-		try {
-			gpio_direction_ofs.open(pin_direction_file);
-		} catch (std::system_error& e) {
-			std::cerr << e.code().message() << std::endl;
-		}
-		gpio_direction_ofs<<"out";
-
-
-		//Write to pin
-		std::string pin_value_file{fmt::format("/sys/class/gpio/gpio{}/value", gpio_pin)};
-
-		std::ofstream gpio_pin_value_ofs{};
-
-		try {
-			gpio_pin_value_ofs.open(pin_value_file);
-		} catch (std::system_error& e) {
-			std::cerr << e.code().message() << std::endl;
-		}
-
-		try {
-			gpio_pin_value_ofs<<"1";
-		} catch (std::system_error& e) {
-			std::cerr << e.code().message() << std::endl;
-		}
+		validate_pin(args.pin);
 	}
-
-//	gpio_pin_value_ofs<<"1";
-
-
-//    fd = open("/sys/class/gpio/gpio24/value", O_WRONLY);
-//    if (fd == -1) {
-//        perror("Unable to open /sys/class/gpio/gpio24/value");
-//        exit(1);
-//    }
-
-//    // Toggle LED 50 ms on, 50ms off, 100 times (10 seconds)
-
-//    for (int i = 0; i < 100; i++) {
-//        if (write(fd, "1", 1) != 1) {
-//            perror("Error writing to /sys/class/gpio/gpio24/value");
-//            exit(1);
-//        }
-//        usleep(50000);
-
-//        if (write(fd, "0", 1) != 1) {
-//            perror("Error writing to /sys/class/gpio/gpio24/value");
-//            exit(1);
-//        }
-//        usleep(50000);
-//    }
-
-//    close(fd);
-
-//    // Unexport the pin by writing to /sys/class/gpio/unexport
-
-//    fd = open("/sys/class/gpio/unexport", O_WRONLY);
-//    if (fd == -1) {
-//        perror("Unable to open /sys/class/gpio/unexport");
-//        exit(1);
-//    }
-
-//    if (write(fd, "24", 2) != 2) {
-//        perror("Error writing to /sys/class/gpio/unexport");
-//        exit(1);
-//    }
-
-//    close(fd);
-
-    // And exit
+	catch (GPIOException)
+	{
+		std::cout<<fmt::format(
+					   "Invalid PIN:{}\n"
+					   "Board info(configured at build time):{}",
+					   args.pin, BOARD)<<std::endl;
+		return -1;
+	}
+	write_to_pin(args.pin);
     return 0;
 }
