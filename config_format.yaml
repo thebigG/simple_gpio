@@ -1,0 +1,11 @@
+root_dir: "."
+
+#When true, files will only be checked. None will be modified.
+check_all: false
+
+file_extensions: ['.cpp', '.cc', '.C', 'CPP', '.c++', 'cp', '.cxx', '.h', '.hh', '.hpp']
+
+exclude_dirs:
+  - "fmt"
+  - "simple_gpio"
+  - "build"

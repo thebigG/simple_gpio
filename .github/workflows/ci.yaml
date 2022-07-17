@@ -1,0 +1,60 @@
+name: X86 Linux Build
+
+on:
+  push:
+    branches: ['*']
+    tags:
+    paths_ignore: ['docs/**', '.travis.yml']
+  pull_request:
+  release:
+    types: ['created']
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build-linux:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {name: "ubuntu-18.04", os: "ubuntu-18.04"}
+    steps:
+    - name: Trust My Directory #https://github.com/actions/checkout/issues/760
+      run: |
+        export GIT_CEILING_DIRECTORIES=/__w
+    - name: Checkout
+      uses: actions/checkout@v1
+      with:
+        token: ${{ secrets.MY_REPO_PAT }}
+        submodules: recursive
+    - name: Install Python 3
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.6
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        pip3 install virtualenv
+        sudo apt-get update
+        sudo apt-get install make
+        sudo apt-get install cmake
+        pip3 install clang-format-all
+
+    - name: Check Coding Style
+      run: |
+        clang_format_all --config config_format_ci.yaml
+    - name: Configure CMake
+      run: |
+        git submodule update --init --recursive
+        mkdir build
+        cd build
+        cmake ..
+    - name: make
+      run:  |
+        cd build
+        make -j8
+        cd ..
