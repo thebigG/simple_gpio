@@ -18,9 +18,9 @@ set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/gpio.cpp)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
-                    ${CMAKE_CURRENT_SOURCE_DIR}/fmt/include)
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../fmt/include)
 
-add_subdirectory(fmt)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../fmt fmt)
 add_library(simple_gpio ${HEADERS} ${SOURCES})
 
 set_target_properties(simple_gpio PROPERTIES LINKER_LANGUAGE CXX)

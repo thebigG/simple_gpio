@@ -32,7 +32,5 @@ private:
 
 
 void write_to_pin(int i);
-
 void write_to_all_pins();
-
 void validate_pin(int pin);

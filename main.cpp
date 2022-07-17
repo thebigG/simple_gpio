@@ -59,23 +59,6 @@ void process_program_options(const int argc, const char *const argv[], Args& in_
 
 	po::variables_map args;
 
-
-
-
-	po::options_description desc2("Write to all pins.");
-//	desc2.add_options()
-//			(
-//				"all,a",
-//				po::value< bool >()
-//					->notifier(
-//						[&desc2](const bool& all_pins) {
-//							validate_pin(desc2, all_pins);
-//						}
-//					),
-//				"Write to all pins."
-//			)
-//	;
-
 	po::options_description desc3("Usage");
 	desc3.add_options()
 			(
@@ -92,7 +75,6 @@ void process_program_options(const int argc, const char *const argv[], Args& in_
 	;
 
 	desc3.add(desc1);
-	desc3.add(desc2);
 
 	if (argc == 1) {
 		show_help(desc3); // does not return
