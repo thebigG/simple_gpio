@@ -7,5 +7,4 @@ file_extensions: ['.cpp', '.cc', '.C', 'CPP', '.c++', 'cp', '.cxx', '.h', '.hh',
 
 exclude_dirs:
   - "fmt"
-  - "simple_gpio"
   - "build"
