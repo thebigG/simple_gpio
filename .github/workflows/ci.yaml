@@ -42,8 +42,8 @@ jobs:
         sudo apt-get update
         sudo apt-get install make
         sudo apt-get install cmake
-        sudo apt-get install clang-format-10
-        sudo ln -sf  /usr/bin/clang-format-10 /usr/bin/clang-format
+        sudo apt-get install clang-format-13
+        sudo ln -sf  /usr/bin/clang-format-13 /usr/bin/clang-format
         pip3 install clang-format-all
 
     - name: Check Coding Style
