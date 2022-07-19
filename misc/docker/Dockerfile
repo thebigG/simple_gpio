@@ -9,7 +9,8 @@ RUN apt install -y python3.7
 
 RUN apt-get update && apt-get install -y make cmake libx11-dev \
                                                    libxtst-dev \
-                                                   python3-pip
+                                                   python3-pip \
+                                                   git
 
 
 #RUN pip3 install clang-format-all
