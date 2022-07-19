@@ -3,13 +3,13 @@ USER root
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+RUN apt update && install software-properties-common
 RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt install python3.7
 
 RUN apt-get update && apt-get install -y make cmake libx11-dev \
                                                    libxtst-dev \
                                                    python3-pip \
-                                                   software-properties-common \
 
 
 RUN pip3 install clang-format-all
