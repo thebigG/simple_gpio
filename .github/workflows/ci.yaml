@@ -39,7 +39,6 @@ jobs:
         python-version: 3.7
     - name: Install dependencies
       run: |
-        python3 -m pip install --upgrade pip
         sudo apt-get update
         pip3 install clang-format-all
     - name: Check Coding Style
