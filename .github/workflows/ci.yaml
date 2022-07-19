@@ -33,6 +33,15 @@ jobs:
       with:
         token: ${{ secrets.MY_REPO_PAT }}
         submodules: recursive
+    - name: Install Python 3
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        sudo apt-get update
+        pip3 install clang-format-all
     - name: Check Coding Style
       run: |
         clang_format_all --config config_format_ci.yaml
