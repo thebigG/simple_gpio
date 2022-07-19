@@ -33,10 +33,6 @@ jobs:
       with:
         token: ${{ secrets.MY_REPO_PAT }}
         submodules: recursive
-    - name: Install Python 3
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.7
     - name: Install dependencies
       run: |
         pip3 install clang-format-all
