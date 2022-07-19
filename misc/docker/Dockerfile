@@ -3,7 +3,7 @@ USER root
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt update && install software-properties-common
+RUN apt update && apt install software-properties-common
 RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt install python3.7
 
