@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y make cmake libx11-dev \
                                                    python3-pip
 
 RUN pip3 install cmake
-
+RUN pip3 install clang-format-all
 
 RUN apt-get install -y clang-format-10
 RUN ln -s  /usr/bin/clang-format-10 /usr/bin/clang-format

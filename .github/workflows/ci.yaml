@@ -16,6 +16,8 @@ defaults:
 jobs:
   build-linux:
     name: ${{ matrix.config.name }}
+    container:
+      image: thebigg1/simple_gpio-linux-ci:latest
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
@@ -31,21 +33,6 @@ jobs:
       with:
         token: ${{ secrets.MY_REPO_PAT }}
         submodules: recursive
-    - name: Install Python 3
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.7
-    - name: Install dependencies
-      run: |
-        python3 -m pip install --upgrade pip
-        pip3 install virtualenv
-        sudo apt-get update
-        sudo apt-get install make
-        sudo apt-get install cmake
-        sudo apt-get install clang-format-10
-        sudo ln -sf  /usr/bin/clang-format-10 /usr/bin/clang-format
-        pip3 install clang-format-all
-
     - name: Check Coding Style
       run: |
         clang_format_all --config config_format_ci.yaml
