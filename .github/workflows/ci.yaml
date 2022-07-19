@@ -1,4 +1,4 @@
-name: X86 Linux Build
+name: x86 Linux Build
 
 on:
   push:
