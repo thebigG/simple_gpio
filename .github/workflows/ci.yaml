@@ -41,7 +41,6 @@ jobs:
         clang_format_all --config config_format_ci.yaml
     - name: Configure CMake
       run: |
-        git submodule update --init --recursive
         mkdir build
         cd build
         cmake ..
