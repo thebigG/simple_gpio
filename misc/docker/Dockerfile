@@ -4,7 +4,8 @@ USER root
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y make cmake libx11-dev \
-                                                   libxtst-dev 
+                                                   libxtst-dev \
+                                                   python3-pip
 
 RUN pip3 install cmake
 
