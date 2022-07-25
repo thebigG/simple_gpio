@@ -1,0 +1,51 @@
+name: x86 Linux Build
+
+on:
+  push:
+    branches: ['*']
+    tags:
+    paths_ignore: ['docs/**', '.travis.yml']
+  pull_request:
+  release:
+    types: ['created']
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build-linux:
+    name: ${{ matrix.config.name }}
+    container:
+      image: thebigg1/simple_gpio-linux-ci:latest
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {name: "ubuntu-18.04", os: "ubuntu-18.04"}
+    steps:
+    - name: Trust My Directory #https://github.com/actions/checkout/issues/760
+      run: |
+        export GIT_CEILING_DIRECTORIES=/__w
+    - name: Checkout
+      uses: actions/checkout@v1
+      with:
+        token: ${{ secrets.MY_REPO_PAT }}
+        submodules: recursive
+    - name: Install dependencies
+      run: |
+        pip3 install clang-format-all
+    - name: Check Coding Style
+      run: |
+        clang_format_all --config config_format_ci.yaml
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+    - name: make
+      run:  |
+        cd build
+        make -j8
+        cd ..
