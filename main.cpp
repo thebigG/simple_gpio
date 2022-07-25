@@ -1,17 +1,6 @@
-/*
-
-Example of programming GPIO from C or C++ using the sysfs interface on
-a Raspberry Pi.
-
-Will toggle GPIO24 (physical pin 18) at a 100 millisecond rate for 10
-seconds and then exit.
-
-Jeff Tranter <jtranter@ics.com>
-
-*/
-
 #include <errno.h>
 #include <fcntl.h>
+#include <fmt/core.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -36,6 +25,19 @@ namespace po = boost::program_options;
 void show_help(const po::options_description& desc,
                const std::string& topic = "") {
   std::cout << desc << '\n';
+  std::string pins{"["};
+  for (auto pin : SimpleGPIO::get_pins()) {
+    pins += std::to_string(pin);
+    pins += ",";
+  }
+
+  pins += "]";
+  std::cout << fmt::format(
+                   "Simple front-end for linux GPIO driver.\n"
+                   "Configured for:\"{}\" \n"
+                   "Pins available:{}",
+                   SimpleGPIO::get_board(), pins)
+            << std::endl;
   if (topic != "") {
     std::cout << "You asked for help on: " << topic << '\n';
   }
@@ -44,12 +46,13 @@ void show_help(const po::options_description& desc,
 void process_program_options(const int argc, const char* const argv[],
                              Args& in_args) {
   po::options_description desc1("Write to pin.");
-  desc1.add_options()(
-      "Pin,p",
-      po::value<int>()
-          ->notifier([&desc1](const int& pin) { validate_pin(pin); })
-          ->composing(),
-      "GPIO PIN.");
+  desc1.add_options()("Pin,p",
+                      po::value<int>()
+                          ->notifier([&desc1](const int& pin) {
+                            SimpleGPIO::validate_pin(pin);
+                          })
+                          ->composing(),
+                      "GPIO PIN.");
 
   po::variables_map args;
 
@@ -84,11 +87,11 @@ int main(const int argc, const char* const argv[]) {
   Args args{};
   process_program_options(argc, argv, args);
   try {
-    validate_pin(args.pin);
+    SimpleGPIO::validate_pin(args.pin);
   } catch (GPIOException a) {
     std::cout << a.what() << std::endl;
     return -1;
   }
-  write_to_pin(args.pin);
+  SimpleGPIO::write_to_pin(args.pin);
   return 0;
 }

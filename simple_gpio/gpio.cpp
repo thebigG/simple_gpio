@@ -26,9 +26,8 @@ Jeff Tranter <jtranter@ics.com>
 #include <iostream>
 #include <string>
 
-void write_to_pin(int i) {
+void SimpleGPIO::write_to_pin(int i) {
   // Export the desired pin by writing to /sys/class/gpio/export
-  //
   std::string gpio_pin{std::to_string(i)};
 
   {
@@ -43,6 +42,7 @@ void write_to_pin(int i) {
       export_ofs.open("/sys/class/gpio/export");
     } catch (std::system_error& e) {
       std::cerr << e.code().message() << std::endl;
+      throw GPIOException{"Error on write_to_pin"};
     }
 
     std::cout << fmt::format("Export Pin {}", i) << std::endl;
@@ -91,13 +91,7 @@ void write_to_pin(int i) {
   }
 }
 
-void write_to_all_pins() {
-  for (int i = BASE_GPIO; i <= N_GPIO; i++) {
-    write_to_pin(i);
-  }
-}
-
-void validate_pin(int pin) {
+void SimpleGPIO::validate_pin(int pin) {
   for (auto i : GPIO) {
     if (i == pin) {
       return;
@@ -109,4 +103,13 @@ void validate_pin(int pin) {
       fmt::format("Invalid PIN:{}"
                   "Board info(configured at build time):{}",
                   pin, BOARD)};
+}
+
+std::string SimpleGPIO::get_board() { return BOARD; }
+std::vector<int> SimpleGPIO::get_pins() {
+  std::vector<int> pins{};
+  for (auto pin : GPIO) {
+    pins.push_back(pin);
+  }
+  return pins;
 }
