@@ -18,6 +18,7 @@
 
 struct Args {
   int pin;
+  SimpleGPIO::PIN_VALUE value;
 };
 
 namespace po = boost::program_options;
@@ -56,6 +57,14 @@ void process_program_options(const int argc, const char* const argv[],
 
   po::variables_map args;
 
+  desc1.add_options()("Value,v",
+                      po::value<int>()
+                          ->notifier([&desc1](const int& pin) {
+                            SimpleGPIO::SimpleGPIO::get_pin_value_from_int(pin);
+                          })
+                          ->composing(),
+                      "GPIO PIN value:{1, 0}.");
+
   po::options_description desc3("Usage");
   desc3.add_options()(
       "help,h",
@@ -80,18 +89,14 @@ void process_program_options(const int argc, const char* const argv[],
 
   po::notify(args);
   in_args.pin = args.at("Pin").as<int>();
+  in_args.value = SimpleGPIO::SimpleGPIO::get_pin_value_from_int(
+      args.at("Value").as<int>());
   return;
 }
 
 int main(const int argc, const char* const argv[]) {
   Args args{};
   process_program_options(argc, argv, args);
-  try {
-    SimpleGPIO::validate_pin(args.pin);
-  } catch (GPIOException a) {
-    std::cout << a.what() << std::endl;
-    return -1;
-  }
-  SimpleGPIO::write_to_pin(args.pin);
+  SimpleGPIO::write_to_pin(args.pin, args.value);
   return 0;
 }
