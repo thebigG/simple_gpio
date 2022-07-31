@@ -1,15 +1,3 @@
-/*
-
-Example of programming GPIO from C or C++ using the sysfs interface on
-a Raspberry Pi.
-
-Will toggle GPIO24 (physical pin 18) at a 100 millisecond rate for 10
-seconds and then exit.
-
-Jeff Tranter <jtranter@ics.com>
-
-*/
-
 #include "gpio.h"
 
 #include <errno.h>
