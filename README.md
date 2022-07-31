@@ -1,7 +1,7 @@
 [![x86 Linux Build](https://github.com/thebigG/simple_gpio/actions/workflows/ci.yaml/badge.svg)](https://github.com/thebigG/simple_gpio/actions/workflows/ci.yaml)  
 Simple to use GPIO library for linux
 
-#Build
+# Build
 ```
 docker pull thebigg1/simple_gpio-linux-ci:latest 
 sudo docker run -it thebigg1/simple_gpio-linux-ci:latest bash
@@ -13,7 +13,7 @@ cmake ..
 make
 ```
 
-#Usage
+# Usage
 ```
 ./simple_gpio_example 
 Usage:
@@ -29,7 +29,7 @@ Pins available:[5,6,16,17,19,20,21,27,22,23,24,25,26,]
 
 ```
 
-#Build as a library
+# Build as a library
 ```
 docker pull thebigg1/simple_gpio-linux-ci:latest
 sudo docker run -it thebigg1/simple_gpio-linux-ci:latest bash
