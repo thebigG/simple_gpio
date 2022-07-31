@@ -28,10 +28,18 @@ class GPIOException : public std::exception {
 
 class SimpleGPIO {
  public:
-  static void write_to_pin(int i);
+  enum class PIN_VALUE { ON = 1, OFF = 0 };
+
+  static PIN_VALUE get_pin_value_from_int(int val);
+
+  static void write_to_pin(int pin, PIN_VALUE value);
   static void validate_pin(int pin);
 
   static std::string get_board();
   static std::vector<int> get_pins();
+
+ private:
+  static void export_pin(int pin);
+  static void set_direction_of_pin(std::string direction, int pin);
 };
 #endif
