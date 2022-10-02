@@ -15,3 +15,5 @@ add_executable(simple_gpio_example main.cpp ${HEADERS})
 add_subdirectory(simple_gpio)
 
 target_link_libraries(simple_gpio_example PRIVATE  Boost::program_options simple_gpio)
+
+install(TARGETS simple_gpio_example DESTINATION bin)

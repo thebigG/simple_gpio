@@ -1,5 +1,6 @@
 #include <errno.h>
 #include <fcntl.h>
+#define FMT_HEADER_ONLY
 #include <fmt/core.h>
 #include <stdio.h>
 #include <stdlib.h>
