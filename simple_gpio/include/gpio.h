@@ -21,13 +21,6 @@ class GPIOException : public std::exception {
   std::string newMsg;
 };
 
-class xml_pin_settings {
- public:
-  std::string m_file;               // log filename
-  int m_level;                      // debug level
-  std::set<std::string> m_modules;  // modules where logging is enabled
-};
-
 struct SimpleGPIOConfig {
   std::string board;
   bool all_pins{false};
