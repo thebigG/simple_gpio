@@ -54,17 +54,17 @@ struct SimpleGPIOConfig {
     //		pt::ptree tree;
 
     //		// Put the simple values into the tree. The integer is
-    //automatically
+    // automatically
     //		// converted to a string. Note that the "debug" node is
-    //automatically
+    // automatically
     //		// created if it doesn't exist.
     //		tree.put("debug.filename", m_file);
     //		tree.put("debug.level", m_level);
 
-    //		// Add all the modules. Unlike put, which overwrites existing nodes,
-    //add
-    //		// adds a new node at the lowest level, so the "modules" node will
-    //have
+    //		// Add all the modules. Unlike put, which overwrites existing
+    //nodes, add
+    //		// adds a new node at the lowest level, so the "modules" node
+    //will have
     //		// multiple "module" children.
 
     //		for(auto &name: m_modules)
