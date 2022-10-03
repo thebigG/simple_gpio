@@ -93,26 +93,26 @@ void SimpleGPIO::write_to_pin(int pin, PIN_VALUE value) {
 }
 
 void SimpleGPIO::validate_pin(int pin) {
-  for (auto i : GPIO) {
-    if (i == pin) {
-      return;
-    }
-  }
+  //  for (auto i : GPIO) {
+  //    if (i == pin) {
+  //      return;
+  //    }
+  //  }
 
-  // TODO:Not sure if exceptions are the best fit here
-  throw GPIOException{
-      fmt::format("Invalid PIN:{}"
-                  "Board info(configured at build time):{}",
-                  pin, BOARD)};
+  //  // TODO:Not sure if exceptions are the best fit here
+  //  throw GPIOException{
+  //      fmt::format("Invalid PIN:{}"
+  //                  "Board info(configured at build time):{}",
+  //                  pin, BOARD)};
 }
 
-std::string SimpleGPIO::get_board() { return BOARD; }
+SimpleGPIOConfig SimpleGPIO::get_config() { return config; }
 std::vector<int> SimpleGPIO::get_pins() {
-  std::vector<int> pins{};
-  for (auto pin : GPIO) {
-    pins.push_back(pin);
-  }
-  return pins;
+  //  std::vector<int> pins{};
+  //  for (auto pin : GPIO) {
+  //	pins.push_back(pin);
+  //  }
+  //  return pins;
 }
 
 SimpleGPIO::PIN_VALUE SimpleGPIO::get_pin_value_from_int(int val) {
@@ -121,4 +121,14 @@ SimpleGPIO::PIN_VALUE SimpleGPIO::get_pin_value_from_int(int val) {
   }
 
   return static_cast<PIN_VALUE>(val);
+}
+
+void SimpleGPIO::load_config(std::string& filename) {
+  try {
+    SimpleGPIOConfig ds;
+    ds.load_xml(filename);
+    std::cout << "Success\n";
+  } catch (std::exception& e) {
+    std::cout << "Error: " << e.what() << "\n";
+  }
 }

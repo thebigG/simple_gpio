@@ -1,0 +1,10 @@
+<ping_config>
+    <board_config>ZEDBOARD</board_config>
+    <!--all_pins is a wildcard. Essentially it lets you write
+    to any pin.-->
+    <all_pins>on</all_pins>
+    <pins>
+        <pin>908</pin>
+        <pin>908</pin>
+    </pins>
+</ping_config>

@@ -1,6 +1,6 @@
 #include <errno.h>
 #include <fcntl.h>
-#define FMT_HEADER_ONLY
+//#define FMT_HEADER_ONLY
 #include <fmt/core.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +20,7 @@
 struct Args {
   int pin;
   SimpleGPIO::PIN_VALUE value;
+  std::string config{};
 };
 
 namespace po = boost::program_options;
@@ -38,7 +39,7 @@ void show_help(const po::options_description& desc,
                    "Simple front-end for linux GPIO driver.\n"
                    "Configured for:\"{}\" \n"
                    "Pins available:{}",
-                   SimpleGPIO::get_board(), pins)
+                   SimpleGPIO::get_config().board, pins)
             << std::endl;
   if (topic != "") {
     std::cout << "You asked for help on: " << topic << '\n';
@@ -50,9 +51,7 @@ void process_program_options(const int argc, const char* const argv[],
   po::options_description desc1("Write to pin.");
   desc1.add_options()("Pin,p",
                       po::value<int>()
-                          ->notifier([&desc1](const int& pin) {
-                            SimpleGPIO::validate_pin(pin);
-                          })
+                          ->notifier([&desc1](const int& pin) { return pin; })
                           ->composing(),
                       "GPIO PIN.");
 
@@ -65,6 +64,13 @@ void process_program_options(const int argc, const char* const argv[],
                           })
                           ->composing(),
                       "GPIO PIN value:{1, 0}.");
+  desc1.add_options()("Config,c",
+                      po::value<std::string>()
+                          ->notifier([&desc1](const std::string& config_file) {
+                            return config_file;
+                          })
+                          ->composing(),
+                      "Path to xml pin configuration file.");
 
   po::options_description desc3("Usage");
   desc3.add_options()(
@@ -92,12 +98,14 @@ void process_program_options(const int argc, const char* const argv[],
   in_args.pin = args.at("Pin").as<int>();
   in_args.value = SimpleGPIO::SimpleGPIO::get_pin_value_from_int(
       args.at("Value").as<int>());
+  in_args.config = args.at("Config").as<std::string>();
   return;
 }
 
 int main(const int argc, const char* const argv[]) {
   Args args{};
   process_program_options(argc, argv, args);
-  SimpleGPIO::write_to_pin(args.pin, args.value);
+  SimpleGPIO::load_config(args.config);
+  //  SimpleGPIO::write_to_pin(args.pin, args.value);
   return 0;
 }

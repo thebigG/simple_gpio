@@ -11,7 +11,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/simple_gpio/include
 
 FIND_PACKAGE( Boost 1.40 COMPONENTS program_options REQUIRED )
 
-add_executable(simple_gpio_example main.cpp ${HEADERS})
+add_executable(simple_gpio_example main.cpp)
 add_subdirectory(simple_gpio)
 
 target_link_libraries(simple_gpio_example PRIVATE  Boost::program_options simple_gpio)
